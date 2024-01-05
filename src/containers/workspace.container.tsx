@@ -47,10 +47,10 @@ const Workspace: React.FC<{}> = () => {
     <WorkspaceContainer>
       <WorkspaceDetails>
         <p>Default Workspace</p>
-        <StyledButtom onClick={handleClickNewTask}>
+        <StyledButton onClick={handleClickNewTask}>
           <StyledPlusIcon />
           New task
-        </StyledButtom>
+        </StyledButton>
       </WorkspaceDetails>
       <ListWrapper>
         <ListCard data={data} onItemClick={handleItemClick} onItemStatusUpdate={handleItemStatusUpdate} />
@@ -94,7 +94,7 @@ const WorkspaceDetails = styled.div`
   }
 `;
 
-const StyledButtom = styled(Button)`
+const StyledButton = styled(Button)`
   margin-right: 24px;
   display: block;
   background-color: #16a085;

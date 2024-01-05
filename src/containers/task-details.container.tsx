@@ -25,6 +25,8 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const handleTitleSubmit: SubmitHandler<FormData> = async (data) => {
+    if (!data.title) return;
+
     if (initialValues) {
       patchTask({
         id: initialValues.id,
@@ -92,13 +94,13 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
 
   const handleCancel = (field: 'title' | 'description') => {
     if (field === 'title') {
-      setValue('title', ''); // Reset the title field
+      setValue('title', initialValues?.title || ''); // Reset the title field
       setIsTitleActive(false);
       if (titleInputRef.current) {
         titleInputRef.current.blur();
       }
     } else if (field === 'description') {
-      setValue('description', ''); // Optionally reset the description field
+      setValue('description', initialValues?.description || ''); // Optionally reset the description field
       setIsDescriptionActive(false);
     }
   };
@@ -226,18 +228,15 @@ const ButtonGroup = styled.div`
 
 const SaveButton = styled.button`
   padding: 10px 15px;
-  background-color: #0079bf;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background-color: #5aac44;
+  background-color: #16a085;
 
   &:hover {
-    background-color: #026aa7;
+    background-color: #1abc9c;
   }
-
-
 `;
 
 const CancelButton = styled.button`

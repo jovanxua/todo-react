@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import jxuaImg from '../assets/jxua.png';
+import jxuaImg from '../assets/jovanxua.png';
 
 export default function HeaderContainer() {
   return (

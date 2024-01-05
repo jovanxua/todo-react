@@ -33,6 +33,7 @@ const Button = styled.button<{ isactive: string }>`
   color: #ffffff;
   font-weight: 500;
   border: 1px solid #ffffff;
+  line-height: 0px;
   font-size: ${(props) => props.isactive ? 17 : 15}px;
 `;
 
