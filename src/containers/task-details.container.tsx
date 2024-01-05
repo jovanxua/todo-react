@@ -31,6 +31,7 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
       patchTask({
         id: initialValues.id,
         title: data.title,
+        workspaceId: 'default',
       });
     } else {
       const task = await createTask({
@@ -51,6 +52,7 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
       patchTask({
         id: initialValues.id,
         description: data.description,
+        workspaceId: 'default',
       });
     }
   }
@@ -60,6 +62,7 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
       patchTask({
         id: initialValues.id,
         status: event.currentTarget.value as TaskStatusEnum,
+        workspaceId: 'default',
       });
     }
   }

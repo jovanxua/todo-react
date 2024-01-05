@@ -40,9 +40,14 @@ export const useCreateTask = () => {
     mutationFn: addTaskMutation,
     onSuccess: (data) => {
       // Update tasks data in the cache for the specific workspace
-      queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (oldTasks) => {
-        // Ensure oldTasks is not undefined
-        return oldTasks ? [...oldTasks, data] : [data];
+      queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (previousTasks) => {
+        const doesExist = previousTasks?.find((t) => t.id === data.id);
+
+        if (!!doesExist) {
+          return previousTasks;
+        }
+
+        return previousTasks ? [...previousTasks, data] : [data];
       });
     },
     // ... other options like onError

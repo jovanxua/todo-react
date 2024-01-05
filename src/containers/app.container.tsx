@@ -33,9 +33,15 @@ const App: React.FC<{}> = () => {
     }) => {
       switch (type) {
         case TaskEventEnum.TASK_ADDED: 
-          queryClient.setQueryData<Task[]>(['workspaces', payload.workspaceId, 'tasks'], (existingTasks) => {
+          queryClient.setQueryData<Task[]>(['workspaces', payload.workspaceId, 'tasks'], (previousTasks) => {
             // Ensure oldTasks is not undefined
-            return existingTasks ? [...existingTasks, payload] : [payload];
+            const doesExist = previousTasks?.find((t) => t.id === payload.id);
+
+            if (!!doesExist) {
+              return previousTasks;
+            }
+
+            return previousTasks ? [...previousTasks, payload] : [payload];
           });
           break;
 
