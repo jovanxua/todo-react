@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { FaBox } from "react-icons/fa";
 
 const workspaces = [
-  { id: 'default', name: 'Default' },
+  { id: 'default', name: 'Default Workspace' },
 ];
 
 const Sidebar = styled.div`

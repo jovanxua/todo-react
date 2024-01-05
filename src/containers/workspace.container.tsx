@@ -10,6 +10,7 @@ import { Task, TaskStatusEnum } from '../types';
 import { usePatchTask } from '../hooks/use-tasks.hook';
 
 const Workspace: React.FC<{}> = () => {
+  const [test, setTest] = useState('');
   const [showTaskDetails, setShowTaskDetails] = useState(false); 
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const { isLoading, isError, error, data, tasks } = useAggregatedTasksData('default');
@@ -21,12 +22,17 @@ const Workspace: React.FC<{}> = () => {
   }, []);
 
   const handleItemStatusUpdate = useCallback((item: Task, status: TaskStatusEnum) => {
+    console.log('=========');
+    setTest(item.id);
     patchTask({
       id: item.id,
       status,
+      workspaceId: item.workspaceId,
     })
+    console.log('=AAAAAAA=');
   }, []);
 
+  console.log('XX_VNX:', tasks?.find((t) => t.id === test));
   const handleCreateTask = useCallback((task: Task) => {
     setSelectedTask(task.id)
   }, []);
