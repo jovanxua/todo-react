@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ThemeProvider } from '@emotion/react';
 import { Global, css } from '@emotion/react';
 import { Subscription } from 'rxjs';
+import { ErrorBoundary } from "react-error-boundary";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Header from '../components/layout/header/header.component';
 import Sidebar from '../components/layout/sidebar.component';
@@ -15,6 +16,7 @@ import { globalStyles } from '../styles/global.style';
 import SubscriptionService from '../services/subscription.service';
 import { Task, TaskEventEnum } from '../types';
 import config from '../utils/config.util';
+import ErrorFallback from '../components/error-fallback/error-fallback.component';
 
 const queryClient = new QueryClient();
 const subscriptionInstance = new SubscriptionService();
@@ -72,7 +74,7 @@ const App: React.FC<{}> = () => {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary fallback={<ErrorFallback />}>
       <Global styles={css`${globalStyles}`}/>
       <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
@@ -92,7 +94,7 @@ const App: React.FC<{}> = () => {
           </Layout>
         </QueryClientProvider>
       </ThemeProvider>
-    </>
+    </ErrorBoundary>
   )
 }
 

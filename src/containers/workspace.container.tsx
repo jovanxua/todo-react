@@ -8,6 +8,7 @@ import Modal from '../components/modal/modal.component';
 import TaskDetails from './task-details.container';
 import { Task, TaskStatusEnum } from '../types';
 import { usePatchTask } from '../hooks/use-tasks.hook';
+import LoadingSpinner from '../components/loading/loading.component';
 
 const Workspace: React.FC<{}> = () => {
   const [showTaskDetails, setShowTaskDetails] = useState(false); 
@@ -39,8 +40,6 @@ const Workspace: React.FC<{}> = () => {
 
   const activeTask = tasks?.find((task) => task.id === selectedTask) || null;
 
-  if (isLoading) return 'Loading...';
-
   if (isError) return 'An error has occurred: ' + error;
 
   return (
@@ -52,9 +51,12 @@ const Workspace: React.FC<{}> = () => {
           New task
         </StyledButton>
       </WorkspaceDetails>
-      <ListWrapper>
-        <ListCard data={data} onItemClick={handleItemClick} onItemStatusUpdate={handleItemStatusUpdate} />
-      </ListWrapper>
+      {!isLoading && (
+        <ListWrapper>
+          <ListCard data={data} onItemClick={handleItemClick} onItemStatusUpdate={handleItemStatusUpdate} />
+        </ListWrapper>
+      )}
+      {isLoading && <LoadingSpinner />}
       <Modal isOpen={showTaskDetails} onClose={() => setShowTaskDetails(val => !val)}>
         <TaskDetails initialValues={activeTask} onCreateTask={handleCreateTask} />
       </Modal>
@@ -66,6 +68,8 @@ const WorkspaceContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  height: 100%;
 `;
 
 const ListWrapper = styled.div`
