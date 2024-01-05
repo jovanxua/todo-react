@@ -3,14 +3,13 @@ import styled from '@emotion/styled';
 import { FiPlus } from 'react-icons/fi';
 import ListCard from '../components/list-maxtrix/list-matrix.component';
 import { useAggregatedTasksData } from '../hooks/use-tasks.hook';
-import Button from '../components/button.component';
-import Modal from '../components/modal.component';
+import Button from '../components/button/button.component';
+import Modal from '../components/modal/modal.component';
 import TaskDetails from './task-details.container';
 import { Task, TaskStatusEnum } from '../types';
 import { usePatchTask } from '../hooks/use-tasks.hook';
 
 const Workspace: React.FC<{}> = () => {
-  const [test, setTest] = useState('');
   const [showTaskDetails, setShowTaskDetails] = useState(false); 
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const { isLoading, isError, error, data, tasks } = useAggregatedTasksData('default');
@@ -22,17 +21,13 @@ const Workspace: React.FC<{}> = () => {
   }, []);
 
   const handleItemStatusUpdate = useCallback((item: Task, status: TaskStatusEnum) => {
-    console.log('=========');
-    setTest(item.id);
     patchTask({
       id: item.id,
       status,
       workspaceId: item.workspaceId,
     })
-    console.log('=AAAAAAA=');
   }, []);
 
-  console.log('XX_VNX:', tasks?.find((t) => t.id === test));
   const handleCreateTask = useCallback((task: Task) => {
     setSelectedTask(task.id)
   }, []);
@@ -48,7 +43,6 @@ const Workspace: React.FC<{}> = () => {
 
   if (isError) return 'An error has occurred: ' + error;
 
-  console.log('XXXX:', data);
   return (
     <WorkspaceContainer>
       <WorkspaceDetails>

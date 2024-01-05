@@ -10,7 +10,6 @@ const Sidebar = styled.div`
   flex-direction: column;
   color: white;
   height: 100%;
-  overflow: hidden;
 `;
 
 const WorkspacesHeader = styled.div`
@@ -34,7 +33,7 @@ const WorkspaceList = styled.ul`
 
 const WorkspaceItem = styled.li`
   padding: 8px 16px;
-  margin: 0px 12px;
+  margin: 0px 16px;
   border-radius: 4px;
   transition: background-color 0.1s, color 0.2s;
   display: flex;

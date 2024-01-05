@@ -16,8 +16,9 @@ const SidebarContainer = styled.nav<{ isOpen: boolean }>`
   backdrop-filter: blur(6px);
   background-color: hsla(206,13.7%,10%,0.9);
   transition: transform 0.3s ease-in-out;
-  transform: ${({ isOpen }) => isOpen ? 'translateX(0)' : 'translateX(-240px)'};
+  transform: ${({ isOpen }) => isOpen ? 'translateX(0)' : 'translateX(-245px)'};
   border-right: 1px solid rgba(255, 255, 255, 0.15);
+  width: 260px;
 `;
 
 export default Sidebar;

@@ -20,7 +20,7 @@ const queryClient = new QueryClient();
 const subscriptionInstance = new SubscriptionService();
 
 const App: React.FC<{}> = () => {
-  const [sidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     let subscription: Subscription;
@@ -76,7 +76,10 @@ const App: React.FC<{}> = () => {
       <Global styles={css`${globalStyles}`}/>
       <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <Layout>
+          <Layout
+            onSidebarStateChange={() => setSidebarOpen(val => !val)}
+            sidebarOpen={sidebarOpen}
+          >
             <Header>
               <HeaderContainer />
             </Header>

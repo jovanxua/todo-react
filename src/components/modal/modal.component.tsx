@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { AiOutlineClose } from 'react-icons/ai';
-import Button from './button.component';
+import Button from '../button/button.component';
 
 type ModalProps = {
   isOpen: boolean;
@@ -13,10 +13,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
   return (
-    <StyledBackdrop onClick={onClose}>
+    <StyledBackdrop data-testid="modal-backdrop" onClick={onClose}>
       <ModalWrapper>
         <StyledModal onClick={e => e.stopPropagation()}>
-          <StyledCloseButton onClick={onClose}>
+          <StyledCloseButton data-testid="modal-close-btn" onClick={onClose}>
             <AiOutlineClose color="#ffffff" />
           </StyledCloseButton>
           {children}

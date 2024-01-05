@@ -4,13 +4,13 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 interface LayoutProps {
   children: React.ReactNode;
+  onSidebarStateChange: () => void;
+  sidebarOpen: boolean;
 }
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
+const Layout: React.FC<LayoutProps> = ({ sidebarOpen, children, onSidebarStateChange }) => {
   return (
     <LayoutContainer sidebarOpen={sidebarOpen}>
-      <ToggleButton sidebarOpen={sidebarOpen} onClick={() => setSidebarOpen(!sidebarOpen)}>
+      <ToggleButton sidebarOpen={sidebarOpen} onClick={onSidebarStateChange}>
         <span>{sidebarOpen ? <IoIosArrowBack color="#ffffff" /> : <IoIosArrowForward color="#ffffff" />}</span>
       </ToggleButton>
       {children}
