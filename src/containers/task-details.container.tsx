@@ -96,6 +96,7 @@ export const TaskDetails = ({ initialValues, onCreateTask, show, onClose, onDele
 
   const handleDescriptionBlur = () => {
     if (initialValues?.id
+      && initialValues?.description
       && initialValues?.description !== descriptionRef.current?.value
     ) {
       descriptionRef.current!.focus();

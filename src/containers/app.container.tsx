@@ -53,6 +53,12 @@ const App: React.FC<{}> = () => {
           });
           break;
 
+        case TaskEventEnum.TASK_REMOVED:
+          queryClient.setQueryData<Task[]>(getTasksQueryKey(payload.workspaceId), (existingTasks) => {
+            return existingTasks ? existingTasks.filter((t) => t.id !== payload.id) : [];
+          });
+          break;
+
         default:
           // no action
       }
