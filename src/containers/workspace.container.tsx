@@ -4,7 +4,6 @@ import { FiPlus } from 'react-icons/fi';
 import ListCard from '../components/list-maxtrix/list-matrix.component';
 import { useAggregatedTasksData } from '../hooks/use-tasks.hook';
 import Button from '../components/button/button.component';
-import Modal from '../components/modal/modal.component';
 import TaskDetails from './task-details.container';
 import { Task, TaskStatusEnum } from '../types';
 import { usePatchTask } from '../hooks/use-tasks.hook';
@@ -17,6 +16,7 @@ const Workspace: React.FC<{}> = () => {
   const { mutate: patchTask } = usePatchTask();
 
   const handleItemClick = useCallback((task: Task) => {
+    console.log('YAWa1');
     setSelectedTask(task.id);
     setShowTaskDetails(true);
   }, []);
@@ -34,8 +34,14 @@ const Workspace: React.FC<{}> = () => {
   }, []);
 
   const handleClickNewTask = useCallback(() => {
+    console.log('YAWa3');
     setSelectedTask(null);
     setShowTaskDetails(val => !val);
+  }, []);
+
+  const handleDetailsClose = useCallback(() => {
+    setShowTaskDetails(val => !val);
+    setSelectedTask(null);
   }, []);
 
   const activeTask = tasks?.find((task) => task.id === selectedTask) || null;
@@ -57,9 +63,13 @@ const Workspace: React.FC<{}> = () => {
         </ListWrapper>
       )}
       {isLoading && <LoadingSpinner />}
-      <Modal isOpen={showTaskDetails} onClose={() => setShowTaskDetails(val => !val)}>
-        <TaskDetails initialValues={activeTask} onCreateTask={handleCreateTask} />
-      </Modal>
+      <TaskDetails
+        show={showTaskDetails}
+        initialValues={activeTask}
+        onCreateTask={handleCreateTask}
+        onClose={handleDetailsClose}
+        onDeleteTask={handleDetailsClose}
+      />
     </WorkspaceContainer>
   )
 };

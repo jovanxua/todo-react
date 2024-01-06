@@ -89,6 +89,39 @@ export const usePatchTask = () => {
   return useMutation<Task, Error, Partial<Task>>(options);
 };
 
+export const useDeleteTask = () => {
+  const queryClient = useQueryClient();
+
+  // Define the mutation function for partial updates
+  const patchTaskMutation = async (partialTask: Partial<Task>): Promise<Task> => {
+    const { data } = await fetchData.delete<Task>(`/api/tasks/${partialTask.id}`);
+    return data;
+  };
+
+  // Define the options for useMutation
+  const options: UseMutationOptions<Task, Error, Partial<Task>> = {
+    mutationFn: patchTaskMutation,
+    onMutate: async (deletedTask) => {
+      await queryClient.cancelQueries({ queryKey: ['workspaces', deletedTask.workspaceId, 'tasks'] })
+      const previousTasks = queryClient.getQueryData(['workspaces', deletedTask.workspaceId, 'tasks'])
+      queryClient.setQueryData<Partial<Task>[]>(['workspaces', deletedTask.workspaceId, 'tasks'], (oldTasks) => {
+        return oldTasks ? oldTasks.filter((t) => t.id !== deletedTask.id) : [];
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousTasks }
+    },
+    onSuccess: (data) => {
+      // Update the specific task in the cache without invalidating the whole list
+      queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (oldTasks) => {
+        return oldTasks ? oldTasks.filter((t) => t.id !== data.id) : [];
+      });
+    },
+  };
+
+  return useMutation<Task, Error, Partial<Task>>(options);
+};
+
 const formatDataMatrix = (tasks: Task[], columnsData: ItemData[]): AggregatedTasksData => {
   return {
     columns: columnsData.reduce((aggregatedData: AggregatedTasksColumns, col) => {

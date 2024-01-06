@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IoIosArrowDown } from "react-icons/io";
 import { useForm, SubmitHandler } from 'react-hook-form';
 import styled from '@emotion/styled';
 import { Task, TaskStatusEnum } from '../types';
-import { usePatchTask, useCreateTask } from '../hooks/use-tasks.hook';
+import { usePatchTask, useCreateTask, useDeleteTask } from '../hooks/use-tasks.hook';
+import Overlay from '../components/overlay/overlay.component';
+import Modal from '../components/modal/modal.component';
 
 type FormData = {
   title: string;
@@ -13,18 +15,23 @@ type FormData = {
 
 interface TaskDetailsProps {
   onCreateTask: (task: Task) => void;
+  onDeleteTask: () => void;
   initialValues: Task | null;
+  onClose: () => void;
+  show: boolean;
 }
 
-export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) => {
+export const TaskDetails = ({ initialValues, onCreateTask, show, onClose, onDeleteTask }: TaskDetailsProps) => {
   const { mutate: patchTask } = usePatchTask();
-  const { mutateAsync: createTask,  } = useCreateTask();
+  const { mutateAsync: createTask  } = useCreateTask();
+  const { mutate: deleteTask } = useDeleteTask();
   const { register, handleSubmit, setValue, reset } = useForm<FormData>();
   const [isTitleActive, setIsTitleActive] = useState(false);
   const [isDescriptionActive, setIsDescriptionActive] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleTitleSubmit: SubmitHandler<FormData> = async (data) => {
+   const handleTitleSubmit: SubmitHandler<FormData> = async (data) => {
     if (!data.title) return;
 
     if (initialValues) {
@@ -67,17 +74,34 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
     }
   }
 
+  const handleDeleteTask = useCallback(() => {
+    deleteTask({
+      id: initialValues?.id,
+      workspaceId: 'default'
+    });
+    onDeleteTask();
+  }, [initialValues]);
+
   const handleTitleBlur = () => {
-    if (titleInputRef.current && titleInputRef.current.value === '') {
+    if (titleInputRef.current && titleInputRef.current.value === '' || (
+      initialValues?.title
+        && titleInputRef.current?.value
+        && initialValues?.title !== titleInputRef.current?.value
+    )) {
       titleInputRef.current.focus();
     } else {
       setTimeout(() => setIsTitleActive(false), 100);
-
     }
   };
 
   const handleDescriptionBlur = () => {
-    setTimeout(() =>  setIsDescriptionActive(false), 100);
+    if (initialValues?.id
+      && initialValues?.description !== descriptionRef.current?.value
+    ) {
+      descriptionRef.current!.focus();
+    } else {
+      setTimeout(() =>  setIsDescriptionActive(false), 100);
+    }
   }
 
   useEffect(() => {
@@ -89,11 +113,15 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
   }, [initialValues, setValue]);
 
   useEffect(() => {
-    if (!initialValues && titleInputRef.current) {
+    if (show && !initialValues && titleInputRef.current) {
       titleInputRef.current.focus();
       setIsTitleActive(true);
+    } else {
+      titleInputRef.current?.blur();
+      descriptionRef.current?.blur();
+      setIsTitleActive(false);
     }
-  }, []);
+  }, [initialValues, show]);
 
   const handleCancel = (field: 'title' | 'description') => {
     if (field === 'title') {
@@ -105,81 +133,96 @@ export const TaskDetails = ({ initialValues, onCreateTask }: TaskDetailsProps) =
     } else if (field === 'description') {
       setValue('description', initialValues?.description || ''); // Optionally reset the description field
       setIsDescriptionActive(false);
+      if (descriptionRef.current) {
+        descriptionRef.current.blur();
+      }
     }
   };
 
   const { ref: titleRegisterRef, ...titleRegisterProps } = register('title');
+  const { ref: descriptionRegisterRef, ...descriptionRegisterProps } = register('description');
 
   return (
     <>
-      <SelectWrapper>
-        <Select {...register('status')} onChange={handleStatusChange}>
-          <option value={TaskStatusEnum.TODO}>TODO</option>
-          <option value={TaskStatusEnum.ONGOING}>ONGOING</option>
-          <option value={TaskStatusEnum.DONE}>DONE</option>
-        </Select>
-        <Arrow />
-      </SelectWrapper>
-      <Form onSubmit={handleSubmit(handleTitleSubmit)} name="titleForm">
-        <FormTitle>Title</FormTitle>
-        <Input
-          {...titleRegisterProps}
-          placeholder="Enter a title"
-          autoComplete="off"
-          onFocus={() => setIsTitleActive(true)}
-          onBlur={handleTitleBlur}
-          ref={(e) => {
-            titleRegisterRef(e);
-            (titleInputRef as any).current = e;
-          }}
-        />
-        {isTitleActive && (
-          <ButtonGroup>
-            <SaveButton color="#5aac44" type="submit">Save</SaveButton>
-            {!!initialValues && <CancelButton type="button" onClick={() => handleCancel('title')}>Cancel</CancelButton>}
-          </ButtonGroup>
-        )}
-      </Form>
-      <Form onSubmit={handleSubmit(handleDescriptionSubmit)} name="descriptionForm">
-        <FormTitle>Description</FormTitle>
-        <Textarea
-          {...register('description')}
-          placeholder="Add a more detailed description..."
-          rows={3}
-          onFocus={() => setIsDescriptionActive(true)}
-          onBlur={handleDescriptionBlur}
-        />
-        {isDescriptionActive && (
-          <ButtonGroup>
-            <SaveButton type="submit">Save</SaveButton>
-            <CancelButton type="button" onClick={() => handleCancel('description')}>Cancel</CancelButton>
-          </ButtonGroup>
-        )}
-      </Form>
+      <Modal isOpen={show} onClose={onClose}>
+        <SelectWrapper>
+          <Select {...register('status')} onChange={handleStatusChange} disabled={isTitleActive}>
+            <option value={TaskStatusEnum.TODO}>TODO</option>
+            <option value={TaskStatusEnum.ONGOING}>ONGOING</option>
+            <option value={TaskStatusEnum.DONE}>DONE</option>
+          </Select>
+          <Arrow />
+        </SelectWrapper>
+        <Form onSubmit={handleSubmit(handleTitleSubmit)} name="titleForm">
+          <FormTitle isActive={isTitleActive}>Title</FormTitle>
+          <Input
+            {...titleRegisterProps}
+            placeholder="Enter a title"
+            autoComplete="off"
+            onFocus={() => setIsTitleActive(true)}
+            onBlur={handleTitleBlur}
+            ref={(e) => {
+              titleRegisterRef(e);
+              (titleInputRef as any).current = e;
+            }}
+            isActive={isTitleActive}
+          />
+          {isTitleActive && (
+            <ButtonGroup>
+              <SaveButton style={{ zIndex: 2001 }} color="#5aac44" type="submit">Save</SaveButton>
+              {!!initialValues && <CancelButton type="button" onClick={() => handleCancel('title')}>Cancel</CancelButton>}
+            </ButtonGroup>
+          )}
+        </Form>
+        <Form onSubmit={handleSubmit(handleDescriptionSubmit)} name="descriptionForm">
+          <FormTitle isActive={isDescriptionActive}>Description</FormTitle>
+          <Textarea
+            {...descriptionRegisterProps}
+            placeholder="Add a more detailed description..."
+            rows={3}
+            onFocus={() => setIsDescriptionActive(true)}
+            onBlur={handleDescriptionBlur}
+            isActive={isDescriptionActive}
+            ref={(e) => {
+              descriptionRegisterRef(e);
+              (descriptionRef as any).current = e;
+            }}
+          />
+          {isDescriptionActive && (
+            <ButtonGroup>
+              <SaveButton type="submit">Save</SaveButton>
+              <CancelButton type="button" onClick={() => handleCancel('description')}>Cancel</CancelButton>
+            </ButtonGroup>
+          )}
+        </Form>
+        {!!initialValues && <DeleteButton onClick={handleDeleteTask}>Delete</DeleteButton>}
+        {(isTitleActive || isDescriptionActive) &&<Overlay />}
+      </Modal>
     </>
   );
 };
 
-
-const FormTitle = styled.h3`
+const FormTitle = styled.h3<{ isActive: boolean }>`
   margin: 0;
   color: #7d7d7d;
   font-size: 1.2rem;
   margin-bottom: 5px; /* Adjust space between title and input */
+  z-index: ${({ isActive }) => isActive ? 1002 : 1000};
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
-  min-width: 412px;
+  min-width: 372px;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ isActive: boolean }>`
   padding: 10px;
   margin: 5px 0;
   border: 1px solid #ccc;
   border-radius: 4px;
+  z-index: ${({ isActive }) => isActive ? 1002 : 1000};
 `;
 
 const SelectWrapper = styled.div`
@@ -215,18 +258,20 @@ const Arrow = styled(IoIosArrowDown)`
   font-size: 12px;
 `;
 
-const Textarea = styled.textarea`
+const Textarea = styled.textarea<{ isActive: boolean }>`
   padding: 10px;
   margin: 5px 0;
   border: 1px solid #ccc;
   border-radius: 4px;
   min-height: 112px;
+  z-index: ${({ isActive }) => isActive ? 1002 : 1000};
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 10px;
   margin-top: 5px;
+  z-index: 1002;
 `;
 
 const SaveButton = styled.button`
@@ -236,7 +281,7 @@ const SaveButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   background-color: #16a085;
-
+  z-index: 1003;
   &:hover {
     background-color: #1abc9c;
   }
@@ -244,6 +289,18 @@ const SaveButton = styled.button`
 
 const CancelButton = styled.button`
   background-color: #999999;
+  z-index: 1002;
+`;
+
+const DeleteButton = styled(SaveButton)`
+  background-color: #999999;
+  z-index: 1002;
+  width: fit-content;
+  align-self: flex-end;
+  z-index: 1000;
+  &:hover {
+    background-color: #D11A2A;
+  }
 `;
 
 export default TaskDetails;

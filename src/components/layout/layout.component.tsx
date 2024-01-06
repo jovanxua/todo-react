@@ -33,7 +33,7 @@ const LayoutContainer = styled.div<{ sidebarOpen: boolean }>`
 const ToggleButton = styled.button<{ sidebarOpen: boolean }>`
   position: absolute;
   top: 62px;
-  left: ${({ sidebarOpen }) => (sidebarOpen ? '240px' : '0px')};
+  left: ${({ sidebarOpen }) => (sidebarOpen ? '242px' : '0px')};
   z-index: 2;
   transition: left 0.3s ease-in-out;
   height: 32px;

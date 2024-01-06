@@ -53,7 +53,9 @@ const StyledModal = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   z-index: 1001;
   position: relative;
-  padding: 28px 24px 8px 24px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const StyledCloseButton = styled(Button)`
@@ -66,6 +68,7 @@ const StyledCloseButton = styled(Button)`
   padding: 34px 12px;
   font-size: 24px;
   border-color: transparent;
+  z-index: 1003;
 
   &:hover {
     border-color: transparent;
