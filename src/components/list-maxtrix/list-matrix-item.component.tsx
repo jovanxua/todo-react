@@ -82,6 +82,9 @@ const StyledItem = styled.div<{ $isDragging: boolean }>`
 
 const Title = styled.span`
   margin-top: -4px;
+  white-space: pre-wrap; /* This will preserve whitespace and wrap text */
+  word-wrap: break-word;
+  overflow: hidden;
 `;
 
 export default Item;
