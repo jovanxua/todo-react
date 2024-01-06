@@ -3,10 +3,14 @@ import toast from 'react-hot-toast';
 import fetchData from '../utils/fetch-data.util';
 import { Task, ItemData, AggregatedTasksColumns, AggregatedTasksData, TaskCreateProps } from '../types';
 
+export const getTasksQueryKey = (workspaceId: string) => {
+  return ['workspaces', workspaceId, 'tasks'];
+}
+
 // Define the return type of the function
 export const useFetchTaskList = (workspaceId: string): UseQueryResult<Task[], Error> => {
   const queryOptions: UseQueryOptions<Task[], Error> = {
-    queryKey: ['workspaces', workspaceId, 'tasks'],
+    queryKey: getTasksQueryKey(workspaceId),
     queryFn: async () => {
       const { data } = await fetchData.get<Task[]>(`/api/tasks?workspaceId=${workspaceId}`);
       return data;
@@ -42,7 +46,7 @@ export const useCreateTask = () => {
     onSuccess: (data) => {
       toast('New task created');
       // Update tasks data in the cache for the specific workspace
-      queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (previousTasks) => {
+      queryClient.setQueryData<Task[]>(getTasksQueryKey(data.workspaceId), (previousTasks) => {
         const doesExist = previousTasks?.find((t) => t.id === data.id);
 
         if (!!doesExist) {
@@ -71,19 +75,24 @@ export const usePatchTask = () => {
   const options: UseMutationOptions<Task, Error, Partial<Task>> = {
     mutationFn: patchTaskMutation,
     onMutate: async (updatedTask) => {
-      await queryClient.cancelQueries({ queryKey: ['workspaces', updatedTask.workspaceId, 'tasks'] })
-      const previousTasks = queryClient.getQueryData(['workspaces', updatedTask.workspaceId, 'tasks'])
-      queryClient.setQueryData<Partial<Task>[]>(['workspaces', updatedTask.workspaceId, 'tasks'], (oldTasks) => {
-        return oldTasks ? oldTasks.map((t) => t.id === updatedTask.id ? { ...t, ...updatedTask } : t) : [];
+      const queryKey = getTasksQueryKey(updatedTask.workspaceId || '');
+      await queryClient.cancelQueries({ queryKey })
+      const previousTasks = queryClient.getQueryData(queryKey)
+      queryClient.setQueryData<Partial<Task>[]>(queryKey, (oldTasks) => {
+        return oldTasks
+          ? oldTasks.map((t) => t.id === updatedTask.id ? { ...t, ...updatedTask }
+          : t) : [];
       });
 
       // Return a context object with the snapshotted value
-      return { previousTasks }
+      return { previousTasks, updatedTask }
     },
     onSuccess: (data) => {
       // Update the specific task in the cache without invalidating the whole list
       queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (oldTasks) => {
-        return oldTasks ? oldTasks.map((t) => t.id === data.id ? { ...t, ...data } : t) : [data];
+        return oldTasks
+          ? oldTasks.map((t) => t.id === data.id ? { ...t, ...data } : t)
+          : [data];
       });
     },
   };
@@ -104,9 +113,10 @@ export const useDeleteTask = () => {
   const options: UseMutationOptions<Task, Error, Partial<Task>> = {
     mutationFn: patchTaskMutation,
     onMutate: async (deletedTask) => {
-      await queryClient.cancelQueries({ queryKey: ['workspaces', deletedTask.workspaceId, 'tasks'] })
-      const previousTasks = queryClient.getQueryData(['workspaces', deletedTask.workspaceId, 'tasks'])
-      queryClient.setQueryData<Partial<Task>[]>(['workspaces', deletedTask.workspaceId, 'tasks'], (oldTasks) => {
+      const queryKey = getTasksQueryKey(deletedTask.workspaceId || '');
+      await queryClient.cancelQueries({ queryKey })
+      const previousTasks = queryClient.getQueryData(queryKey)
+      queryClient.setQueryData<Partial<Task>[]>(queryKey, (oldTasks) => {
         return oldTasks ? oldTasks.filter((t) => t.id !== deletedTask.id) : [];
       });
       toast('Task deleted');
@@ -115,8 +125,10 @@ export const useDeleteTask = () => {
     },
     onSuccess: (data) => {
       // Update the specific task in the cache without invalidating the whole list
-      queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (oldTasks) => {
-        return oldTasks ? oldTasks.filter((t) => t.id !== data.id) : [];
+      queryClient.setQueryData<Task[]>(getTasksQueryKey(data.workspaceId), (oldTasks) => {
+        return oldTasks
+          ? oldTasks.filter((t) => t.id !== data.id)
+          : [];
       });
     },
   };

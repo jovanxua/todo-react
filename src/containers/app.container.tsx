@@ -18,6 +18,7 @@ import SubscriptionService from '../services/subscription.service';
 import { Task, TaskEventEnum } from '../types';
 import config from '../utils/config.util';
 import ErrorFallback from '../components/error-fallback/error-fallback.component';
+import { getTasksQueryKey } from '../hooks/use-tasks.hook';
 
 const queryClient = new QueryClient();
 const subscriptionInstance = new SubscriptionService();
@@ -34,7 +35,7 @@ const App: React.FC<{}> = () => {
     }) => {
       switch (type) {
         case TaskEventEnum.TASK_ADDED: 
-          queryClient.setQueryData<Task[]>(['workspaces', payload.workspaceId, 'tasks'], (previousTasks) => {
+          queryClient.setQueryData<Task[]>(getTasksQueryKey(payload.workspaceId), (previousTasks) => {
             // Ensure oldTasks is not undefined
             const doesExist = previousTasks?.find((t) => t.id === payload.id);
 
@@ -47,7 +48,7 @@ const App: React.FC<{}> = () => {
           break;
 
         case TaskEventEnum.TASK_UPDATED:
-          queryClient.setQueryData<Task[]>(['workspaces', payload.workspaceId, 'tasks'], (existingTasks) => {
+          queryClient.setQueryData<Task[]>(getTasksQueryKey(payload.workspaceId), (existingTasks) => {
             return existingTasks ? existingTasks.map((t) => t.id === payload.id ? { ...t, ...payload } : t) : [payload];
           });
           break;

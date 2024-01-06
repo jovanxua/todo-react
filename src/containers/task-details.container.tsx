@@ -206,7 +206,7 @@ const FormTitle = styled.h3<{ isActive: boolean }>`
   margin: 0;
   color: #7d7d7d;
   font-size: 1.2rem;
-  margin-bottom: 5px; /* Adjust space between title and input */
+  margin-bottom: 5px;
   z-index: ${({ isActive }) => isActive ? 1002 : 1000};
 `;
 
@@ -227,10 +227,10 @@ const Input = styled.input<{ isActive: boolean }>`
 
 const SelectWrapper = styled.div`
   position: relative;
-  background-color: #333; // Match this to your theme's dropdown color
+  background-color: #333;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: fit-content; // Adjust the width as needed
+  width: fit-content;
   display: flex;
   justify-content: flex-start;
   margin-bottom: 32px;
@@ -239,11 +239,11 @@ const SelectWrapper = styled.div`
 
 const Select = styled.select`
   padding: 10px 32px 10px 10px;
-  appearance: none; // Remove default styling
+  appearance: none;
   background-color: rgba(161, 189, 217, 0.08);
   border: none;
-  color: white; // Match this to your theme's text color
-  width: 100%; // Make the select fill its container
+  color: white;
+  width: 100%;
 
   &:focus {
     outline: none;
@@ -252,7 +252,7 @@ const Select = styled.select`
 
 const Arrow = styled(IoIosArrowDown)`
   position: absolute;
-  right: 10px; // Padding from the right edge
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 12px;
