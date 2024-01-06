@@ -1,4 +1,5 @@
 import { useQuery, UseQueryResult, UseQueryOptions, useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import fetchData from '../utils/fetch-data.util';
 import { Task, ItemData, AggregatedTasksColumns, AggregatedTasksData, TaskCreateProps } from '../types';
 
@@ -39,6 +40,7 @@ export const useCreateTask = () => {
   const options: UseMutationOptions<Task, Error, TaskCreateProps> = {
     mutationFn: addTaskMutation,
     onSuccess: (data) => {
+      toast('New task created');
       // Update tasks data in the cache for the specific workspace
       queryClient.setQueryData<Task[]>(['workspaces', data.workspaceId, 'tasks'], (previousTasks) => {
         const doesExist = previousTasks?.find((t) => t.id === data.id);
@@ -107,7 +109,7 @@ export const useDeleteTask = () => {
       queryClient.setQueryData<Partial<Task>[]>(['workspaces', deletedTask.workspaceId, 'tasks'], (oldTasks) => {
         return oldTasks ? oldTasks.filter((t) => t.id !== deletedTask.id) : [];
       });
-
+      toast('Task deleted');
       // Return a context object with the snapshotted value
       return { previousTasks }
     },

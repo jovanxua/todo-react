@@ -16,7 +16,6 @@ const Workspace: React.FC<{}> = () => {
   const { mutate: patchTask } = usePatchTask();
 
   const handleItemClick = useCallback((task: Task) => {
-    console.log('YAWa1');
     setSelectedTask(task.id);
     setShowTaskDetails(true);
   }, []);
@@ -34,7 +33,6 @@ const Workspace: React.FC<{}> = () => {
   }, []);
 
   const handleClickNewTask = useCallback(() => {
-    console.log('YAWa3');
     setSelectedTask(null);
     setShowTaskDetails(val => !val);
   }, []);

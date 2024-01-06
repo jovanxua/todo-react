@@ -3,6 +3,7 @@ import { ThemeProvider } from '@emotion/react';
 import { Global, css } from '@emotion/react';
 import { Subscription } from 'rxjs';
 import { ErrorBoundary } from "react-error-boundary";
+import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Header from '../components/layout/header/header.component';
 import Sidebar from '../components/layout/sidebar.component';
@@ -84,6 +85,7 @@ const App: React.FC<{}> = () => {
       <Global styles={css`${globalStyles}`}/>
       <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
+          <Toaster />
           <Layout
             onSidebarStateChange={() => setSidebarOpen(val => !val)}
             sidebarOpen={sidebarOpen}

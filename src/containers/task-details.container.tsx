@@ -240,7 +240,7 @@ const SelectWrapper = styled.div`
 const Select = styled.select`
   padding: 10px 32px 10px 10px;
   appearance: none; // Remove default styling
-  background-color: transparent;
+  background-color: rgba(161, 189, 217, 0.08);
   border: none;
   color: white; // Match this to your theme's text color
   width: 100%; // Make the select fill its container
